@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #faf8f5;
+  --color-paper-dark: #1a1a2e;
+  --color-ink: #2d2d2d;
+  --color-ink-dark: #e0e0e0;
+  --color-accent: #6366f1;
+  --color-accent-light: #818cf8;
+  --color-gold: #f59e0b;
+  --color-gold-light: #fbbf24;
+}
+
+body {
+  margin: 0;
+  font-family: 'Georgia', 'Noto Serif SC', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling for story reading */
+.story-scroll {
+  scroll-behavior: smooth;
+}
+
+/* Word highlight animation */
+@keyframes wordPulse {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(245, 158, 11, 0.15); }
+}
+
+.word-target {
+  border-bottom: 2px dashed var(--color-gold);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.word-target:hover {
+  background-color: rgba(245, 158, 11, 0.12);
+}
+
+.word-clickable {
+  cursor: pointer;
+  transition: background-color 0.15s;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.word-clickable:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+/* Choice button animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.choice-enter {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* Typing cursor for story loading */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '▍';
+  animation: blink 1s infinite;
+  color: var(--color-accent);
+}
+
+/* Page transition */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-enter {
+  animation: fadeIn 0.5s ease-out;
+}
