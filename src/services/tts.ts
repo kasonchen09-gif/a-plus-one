@@ -1,7 +1,6 @@
 // TTS (Text-to-Speech) 服务 — 基于 Web Speech API
 
 let speechSynth: SpeechSynthesis | null = null
-let currentUtterance: SpeechSynthesisUtterance | null = null
 
 // 播放状态
 export type TTSState = 'idle' | 'playing' | 'paused'
@@ -87,18 +86,15 @@ export function speakSentence(
   utterance.onstart = () => setState('playing')
   utterance.onend = () => {
     setState('idle')
-    currentUtterance = null
     options?.onEnd?.()
   }
   utterance.onerror = (e) => {
     setState('idle')
-    currentUtterance = null
     if (e.error !== 'canceled' && e.error !== 'interrupted') {
       options?.onError?.(new Error(`TTS error: ${e.error}`))
     }
   }
 
-  currentUtterance = utterance
   synth.speak(utterance)
 }
 
@@ -200,7 +196,6 @@ export function stopSpeaking(): void {
   sentenceQueue = []
   queueIndex = 0
   queueOptions = null
-  currentUtterance = null
   setState('idle')
 }
 

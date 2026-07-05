@@ -33,7 +33,7 @@ export default function StoryReader() {
     }
   }, [currentSegment, isLoading])
 
-  const generateNextSegment = useCallback(async (choice?: string, choiceText?: string) => {
+  const generateNextSegment = useCallback(async (_choice?: string, choiceText?: string) => {
     setError('')
     setLoading(true)
 

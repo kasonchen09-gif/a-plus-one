@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { UserSettings, StorySegment, WordProgress, StoryMeta, CEFRLevel, StoryGenre } from '../types'
+import type { UserSettings, StorySegment, WordProgress, StoryMeta } from '../types'
 
 interface AppState {
   // 设置
