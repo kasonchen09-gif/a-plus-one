@@ -9,6 +9,19 @@ export const MODEL_ENDPOINTS: Record<string, string> = {
   'deepseek-reasoner': 'https://api.deepseek.com/v1/chat/completions',
 }
 
+// 常见端点错误自动修正
+const ENDPOINT_FIXES: [RegExp, string][] = [
+  [/^https?:\/\/api\.deepseek\.com\/?$/, 'https://api.deepseek.com/v1/chat/completions'],
+  [/^https?:\/\/api\.openai\.com\/?$/, 'https://api.openai.com/v1/chat/completions'],
+]
+
+export function autoFixEndpoint(endpoint: string): string {
+  for (const [pattern, fix] of ENDPOINT_FIXES) {
+    if (pattern.test(endpoint)) return fix
+  }
+  return endpoint
+}
+
 // 根据模型获取默认端点
 export function getDefaultEndpoint(model: string): string {
   return MODEL_ENDPOINTS[model] || 'https://api.openai.com/v1/chat/completions'
@@ -118,7 +131,10 @@ export async function generateStorySegment(
   const systemPrompt = buildSystemPrompt(level, genre, targetWords)
   const userPrompt = buildUserPrompt(storyHistory, previousChoice)
 
-  const response = await fetch(apiEndpoint, {
+  // 防御：自动修正常见端点错误
+  const fixedEndpoint = autoFixEndpoint(apiEndpoint)
+
+  const response = await fetch(fixedEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

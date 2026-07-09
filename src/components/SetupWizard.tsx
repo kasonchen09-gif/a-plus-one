@@ -16,7 +16,7 @@ const MODEL_OPTIONS = [
 ]
 
 export default function SetupWizard() {
-  const { settings, updateSettings } = useStore()
+  const { settings, updateSettings, createSession } = useStore()
   const [step, setStep] = useState<Step>(1)
   const [level, setLevel] = useState<CEFRLevel>(settings.level)
   const [genres, setGenres] = useState<StoryGenre[]>(settings.genres)
@@ -52,16 +52,24 @@ export default function SetupWizard() {
       .map(w => w.trim().toLowerCase())
       .filter(w => w.length > 1)
 
+    // 保存全局设置（API key 等跨会话共享）
     updateSettings({
-      level,
-      genres: genres.length > 0 ? genres : ['medieval-fantasy'],
       apiKey,
       apiEndpoint,
       model,
-      customWordList: wordList,
-      wordListLabel: wordLabel || '自定义词库',
       hasCompletedSetup: true,
     })
+
+    // 创建首个会话（level、genre、wordList 为会话级）
+    const finalGenres: StoryGenre[] = genres.length > 0 ? genres : ['medieval-fantasy']
+    const genreLabel = GENRES.find(g => g.value === finalGenres[0])?.label || '故事'
+    createSession(
+      `${genreLabel} - ${new Date().toLocaleDateString('zh-CN')}`,
+      level,
+      finalGenres,
+      wordList,
+      wordLabel || '自定义词库',
+    )
   }
 
   return (

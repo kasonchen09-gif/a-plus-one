@@ -18,7 +18,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ onClose }: SettingsModalProps) {
-  const { settings, updateSettings, resetSettings, clearStory } = useStore()
+  const { settings, updateSettings, resetSettings, clearStory, currentSessionId, deleteSession } = useStore()
   const [level, setLevel] = useState<CEFRLevel>(settings.level)
   const [genres, setGenres] = useState<StoryGenre[]>(settings.genres)
   const [selectedPreset, setSelectedPreset] = useState(() => {
@@ -69,7 +69,9 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
   }
 
   const handleReset = () => {
-    if (confirm('确定要清除所有设置和数据吗？此操作不可撤销。')) {
+    if (confirm('确定要清除所有设置和数据吗？此操作不可撤销（包括所有故事进度）。')) {
+      // 删除当前会话
+      if (currentSessionId) deleteSession(currentSessionId)
       resetSettings()
       clearStory()
       onClose()

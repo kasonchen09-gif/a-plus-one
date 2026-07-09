@@ -7,17 +7,24 @@ import ChoicePanel from './ChoicePanel'
 import AudioBar from './AudioBar'
 import WordPanel from './WordPanel'
 import SettingsModal from './SettingsModal'
+import SessionManager from './SessionManager'
 
 export default function StoryReader() {
   const {
     settings, storyHistory, currentSegment, storyMeta,
-    isLoading, setLoading, addSegment, setStoryMeta, clearStory,
+    isLoading, setLoading, addSegment, setStoryMeta,
     sidebarOpen, toggleSidebar, settingsModalOpen, setSettingsModalOpen,
   } = useStore()
 
   const [error, setError] = useState('')
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null)
+  const [sessionManagerOpen, setSessionManagerOpen] = useState(false)
+  const [newStoryMode, setNewStoryMode] = useState(false)
+  const [saveToast, setSaveToast] = useState(false)
   const storyEndRef = useRef<HTMLDivElement>(null)
+
+  const currentSession = useStore(s => s.sessions.find(x => x.id === s.currentSessionId))
+  const saveCurrentSession = useStore(s => s.saveCurrentSession)
 
   // 首次加载时自动生成故事
   useEffect(() => {
@@ -150,16 +157,48 @@ export default function StoryReader() {
                 ⚙️
               </button>
 
+              {/* Session name (non-interactive label) */}
+              {currentSession && (
+                <span className="text-slate-500 text-xs bg-slate-800/50 px-2 py-1 rounded-full max-w-[120px] truncate hidden md:inline">
+                  {currentSession.name}
+                </span>
+              )}
+
+              {/* Save */}
+              <button
+                onClick={() => {
+                  saveCurrentSession()
+                  setSaveToast(true)
+                  setTimeout(() => setSaveToast(false), 2000)
+                }}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-sm"
+                title="保存当前进度"
+              >
+                💾
+              </button>
+
+              {/* Session Manager */}
+              <button
+                onClick={() => {
+                  setNewStoryMode(false)
+                  setSessionManagerOpen(true)
+                }}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-sm"
+                title="故事进度管理"
+              >
+                📂
+              </button>
+
               {/* New Story */}
               <button
                 onClick={() => {
-                  if (storyHistory.length > 0 && !confirm('确定要开始新故事吗？当前故事将被清除。')) return
-                  clearStory()
-                  setTimeout(() => generateNextSegment(), 100)
+                  setNewStoryMode(true)
+                  setSessionManagerOpen(true)
                 }}
                 className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-sm"
+                title="开始新故事"
               >
-                新故事
+                🆕
               </button>
             </div>
           </div>
@@ -171,13 +210,21 @@ export default function StoryReader() {
             {/* Error display */}
             {error && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
-                {error}
-                <button
-                  onClick={() => generateNextSegment()}
-                  className="ml-3 underline hover:text-red-300"
-                >
-                  重试
-                </button>
+                <p className="mb-2">{error}</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => generateNextSegment()}
+                    className="underline hover:text-red-300"
+                  >
+                    重试
+                  </button>
+                  <button
+                    onClick={() => setSettingsModalOpen(true)}
+                    className="underline hover:text-amber-300 text-amber-400"
+                  >
+                    ⚙️ 检查 API 设置
+                  </button>
+                </div>
               </div>
             )}
 
@@ -249,6 +296,21 @@ export default function StoryReader() {
       {/* Settings Modal */}
       {settingsModalOpen && (
         <SettingsModal onClose={() => setSettingsModalOpen(false)} />
+      )}
+
+      {/* Session Manager */}
+      {sessionManagerOpen && (
+        <SessionManager
+          onClose={() => { setSessionManagerOpen(false); setNewStoryMode(false) }}
+          newStoryMode={newStoryMode}
+        />
+      )}
+
+      {/* Save Toast */}
+      {saveToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-500/90 text-white px-4 py-2 rounded-xl shadow-lg text-sm font-medium animate-pulse pointer-events-none">
+          ✅ 进度已保存
+        </div>
       )}
     </div>
   )

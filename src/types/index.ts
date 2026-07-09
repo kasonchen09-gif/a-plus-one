@@ -77,6 +77,21 @@ export interface StoryGenerateResponse {
   title?: string
 }
 
+// 保存的会话（存档）
+export interface SavedSession {
+  id: string
+  name: string
+  storyHistory: StorySegment[]
+  storyMeta: StoryMeta | null
+  wordProgress: Record<string, WordProgress>
+  level: CEFRLevel
+  genres: StoryGenre[]
+  customWordList: string[]
+  wordListLabel: string
+  createdAt: number
+  updatedAt: number
+}
+
 // CE FR 等级描述
 export const CEFR_LEVELS: { value: CEFRLevel; label: string; description: string }[] = [
   { value: 'A1', label: 'A1 入门', description: '能理解并使用熟悉的日常表达法和基本词汇' },
